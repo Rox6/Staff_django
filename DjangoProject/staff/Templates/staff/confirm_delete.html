@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Mitarbeiter Löschen</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="mb-4">Bestätigen Sie das Löschen</h1>
+        <p>Wollen Sie {{ mitarbeiter }} wirklich löschen?</p>
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Löschen</button>
+            <a href="{% url 'staff_list' %}" class="btn btn-secondary">Abbrechen</a>
+        </form>
+    </div>
+</body>
+</html>

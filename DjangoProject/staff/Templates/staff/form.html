@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Mitarbeiter Form</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>Mitarbeiter hinzufügen/bearbeiten</h1>
+        <form method="post">
+            {% csrf_token %}
+            
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+            
+            <div class="form-group">
+                {{ form.vorname.label_tag }}
+                {{ form.vorname }}
+                {% if form.vorname.errors %}
+                    <div class="text-danger">{{ form.vorname.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                {{ form.nachname.label_tag }}
+                {{ form.nachname }}
+                {% if form.nachname.errors %}
+                    <div class="text-danger">{{ form.nachname.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                {{ form.gebdatum.label_tag }}
+                {{ form.gebdatum }}
+                {% if form.gebdatum.errors %}
+                    <div class="text-danger">{{ form.gebdatum.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                {{ form.einstdatum.label_tag }}
+                {{ form.einstdatum }}
+                {% if form.einstdatum.errors %}
+                    <div class="text-danger">{{ form.einstdatum.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                {{ form.gehaltmodell.label_tag }}
+                {{ form.gehaltmodell }}
+                {% if form.gehaltmodell.errors %}
+                    <div class="text-danger">{{ form.gehaltmodell.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                {{ form.geschlecht.label_tag }}
+                {{ form.geschlecht }}
+                {% if form.geschlecht.errors %}
+                    <div class="text-danger">{{ form.geschlecht.errors }}</div>
+                {% endif %}
+            </div>
+
+            <button type="submit" class="btn btn-success">Speichern</button>
+            <a href="{% url 'staff_list' %}" class="btn btn-secondary">Zurück zur Liste</a>
+        </form>
+    </div>
+</body>
+</html>
