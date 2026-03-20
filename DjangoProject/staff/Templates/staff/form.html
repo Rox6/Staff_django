@@ -4,24 +4,82 @@
     <meta charset="UTF-8">
     <title>Mitarbeiter Form</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 3px solid #007bff;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+        }
+        .gehalt-section {
+            background-color: #f0f8ff;
+            border-left: 4px solid #007bff;
+            padding: 20px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        .form-check {
+            padding: 10px;
+            background-color: white;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        .form-check-input {
+            width: 20px;
+            height: 20px;
+            margin-top: 3px;
+        }
+        .gehalt-fields {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #ddd;
+        }
+        .field-group {
+            display: none;
+        }
+        .field-group.active {
+            display: block;
+        }
+        .alert-danger {
+            margin-top: 20px;
+        }
+        .btn-group-bottom {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+    </style>
 </head>
 <body>
-    <div class="container mt-5">
-        <h1>Mitarbeiter hinzufügen/bearbeiten</h1>
-        <form method="post">
+    <div class="container mt-5 mb-5">
+        <h1>👤 Mitarbeiter {% if form.instance.pk %}bearbeiten{% else %}hinzufügen{% endif %}</h1>
+        
+        <form method="post" novalidate>
             {% csrf_token %}
             
             {% if form.non_field_errors %}
-                <div class="alert alert-danger">
+                <div class="alert alert-danger alert-dismissible fade show">
+                    <strong>Fehler:</strong>
                     {{ form.non_field_errors }}
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
                 </div>
             {% endif %}
-            
+
+            <!-- Persönliche Daten -->
             <div class="form-group">
                 {{ form.vorname.label_tag }}
                 {{ form.vorname }}
                 {% if form.vorname.errors %}
-                    <div class="text-danger">{{ form.vorname.errors }}</div>
+                    <div class="text-danger small mt-1">{{ form.vorname.errors }}</div>
                 {% endif %}
             </div>
 
@@ -29,45 +87,148 @@
                 {{ form.nachname.label_tag }}
                 {{ form.nachname }}
                 {% if form.nachname.errors %}
-                    <div class="text-danger">{{ form.nachname.errors }}</div>
+                    <div class="text-danger small mt-1">{{ form.nachname.errors }}</div>
                 {% endif %}
             </div>
 
-            <div class="form-group">
-                {{ form.gebdatum.label_tag }}
-                {{ form.gebdatum }}
-                {% if form.gebdatum.errors %}
-                    <div class="text-danger">{{ form.gebdatum.errors }}</div>
-                {% endif %}
-            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    {{ form.gebdatum.label_tag }}
+                    {{ form.gebdatum }}
+                    {% if form.gebdatum.errors %}
+                        <div class="text-danger small mt-1">{{ form.gebdatum.errors }}</div>
+                    {% endif %}
+                </div>
 
-            <div class="form-group">
-                {{ form.einstdatum.label_tag }}
-                {{ form.einstdatum }}
-                {% if form.einstdatum.errors %}
-                    <div class="text-danger">{{ form.einstdatum.errors }}</div>
-                {% endif %}
-            </div>
-
-            <div class="form-group">
-                {{ form.gehaltmodell.label_tag }}
-                {{ form.gehaltmodell }}
-                {% if form.gehaltmodell.errors %}
-                    <div class="text-danger">{{ form.gehaltmodell.errors }}</div>
-                {% endif %}
+                <div class="form-group col-md-6">
+                    {{ form.einstdatum.label_tag }}
+                    {{ form.einstdatum }}
+                    {% if form.einstdatum.errors %}
+                        <div class="text-danger small mt-1">{{ form.einstdatum.errors }}</div>
+                    {% endif %}
+                </div>
             </div>
 
             <div class="form-group">
                 {{ form.geschlecht.label_tag }}
                 {{ form.geschlecht }}
                 {% if form.geschlecht.errors %}
-                    <div class="text-danger">{{ form.geschlecht.errors }}</div>
+                    <div class="text-danger small mt-1">{{ form.geschlecht.errors }}</div>
                 {% endif %}
             </div>
 
-            <button type="submit" class="btn btn-success">Speichern</button>
-            <a href="{% url 'staff_list' %}" class="btn btn-secondary">Zurück zur Liste</a>
+            <!-- Gehalt Sektion -->
+            <div class="gehalt-section">
+                <h5>💰 Gehalt konfigurieren</h5>
+                
+                <div class="form-group">
+                    {{ form.gehalt_typ.label_tag }}
+                    <div class="mt-2">
+                        {% for value, label in form.gehalt_typ.field.choices %}
+                            <div class="form-check">
+                                <input type="radio" 
+                                       id="id_gehalt_typ_{{ forloop.counter0 }}" 
+                                       name="gehalt_typ" 
+                                       value="{{ value }}"
+                                       class="form-check-input"
+                                       onchange="updateGehaltFields()"
+                                       {% if form.gehalt_typ.value == value %}checked{% endif %}>
+                                <label class="form-check-label ml-2" for="id_gehalt_typ_{{ forloop.counter0 }}">
+                                    {{ label }}
+                                </label>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    {% if form.gehalt_typ.errors %}
+                        <div class="text-danger small mt-2">{{ form.gehalt_typ.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="gehalt-fields">
+                    <!-- Arbeitermodell Felder -->
+                    <div id="arbeit-fields" class="field-group">
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                {{ form.stdlohn.label_tag }}
+                                {{ form.stdlohn }}
+                                {% if form.stdlohn.errors %}
+                                    <div class="text-danger small mt-1">{{ form.stdlohn.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="form-group col-md-6">
+                                {{ form.stdzahl.label_tag }}
+                                {{ form.stdzahl }}
+                                {% if form.stdzahl.errors %}
+                                    <div class="text-danger small mt-1">{{ form.stdzahl.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="alert alert-info">
+                            <small>Monatliches Gehalt: <strong><span id="calculated-arbeit">0.00</span>€</strong></small>
+                        </div>
+                    </div>
+
+                    <!-- Fixgehalt Felder -->
+                    <div id="fix-fields" class="field-group">
+                        <div class="form-group">
+                            {{ form.fixgehalt.label_tag }}
+                            {{ form.fixgehalt }}
+                            {% if form.fixgehalt.errors %}
+                                <div class="text-danger small mt-1">{{ form.fixgehalt.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="btn-group-bottom">
+                <button type="submit" class="btn btn-success btn-lg">
+                    <span>✓</span> Speichern
+                </button>
+                <a href="{% url 'staff_list' %}" class="btn btn-secondary btn-lg">
+                    ← Zurück zur Liste
+                </a>
+            </div>
         </form>
     </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+        function updateGehaltFields() {
+            const gehaltTyp = document.querySelector('input[name="gehalt_typ"]:checked').value;
+            const arbeitFields = document.getElementById('arbeit-fields');
+            const fixFields = document.getElementById('fix-fields');
+
+            // Felder anzeigen/verstecken
+            if (gehaltTyp === 'ARBEIT') {
+                arbeitFields.classList.add('active');
+                fixFields.classList.remove('active');
+            } else {
+                arbeitFields.classList.remove('active');
+                fixFields.classList.add('active');
+            }
+
+            // Berechnung aktualisieren
+            calculateGehalt();
+        }
+
+        function calculateGehalt() {
+            const stdlohn = parseFloat(document.querySelector('input[name="stdlohn"]').value) || 0;
+            const stdzahl = parseFloat(document.querySelector('input[name="stdzahl"]').value) || 0;
+            const calculated = (stdlohn * stdzahl * 4.33).toFixed(2); // 4.33 = durchschnittliche Wochen pro Monat
+            document.getElementById('calculated-arbeit').textContent = calculated;
+        }
+
+        // Bei Text-Input-Änderung neu berechnen
+        document.querySelector('input[name="stdlohn"]').addEventListener('input', calculateGehalt);
+        document.querySelector('input[name="stdzahl"]').addEventListener('input', calculateGehalt);
+
+        // Initial anzeigen
+        document.addEventListener('DOMContentLoaded', function() {
+            updateGehaltFields();
+        });
+    </script>
 </body>
 </html>
