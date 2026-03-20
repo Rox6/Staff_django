@@ -23,7 +23,7 @@ The application allows users to create, manage, and view employees through a web
 
 ## Technologies
 
-* Python 3.x
+* Python 3.13.0
 * Django
 * SQLite (default database)
 * HTML (Django Templates)
