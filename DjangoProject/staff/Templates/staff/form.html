@@ -217,7 +217,7 @@
         function calculateGehalt() {
             const stdlohn = parseFloat(document.querySelector('input[name="stdlohn"]').value) || 0;
             const stdzahl = parseFloat(document.querySelector('input[name="stdzahl"]').value) || 0;
-            const calculated = (stdlohn * stdzahl * 4.33).toFixed(2); // 4.33 = durchschnittliche Wochen pro Monat
+            const calculated = (stdlohn * stdzahl).toFixed(2); // Monatsgehalt = Stunden * Stundensatz
             document.getElementById('calculated-arbeit').textContent = calculated;
         }
 

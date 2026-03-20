@@ -1,4 +1,7 @@
 from django.db import models
+from django.core.validators import MinValueValidator
+from decimal import Decimal
+
 
 class Geschlecht(models.TextChoices):
     D = 'D', "Divers"
@@ -15,19 +18,21 @@ class Gehaltsmodell(models.Model):
     ]
 
     typ = models.CharField(max_length=10, choices=TYP_CHOICES, default=TYP_ARBEIT)
-    stdlohn = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    stdzahl = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    gehalt = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    stdlohn = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, validators=[MinValueValidator(0)])
+    stdzahl = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, validators=[MinValueValidator(0)])
+    gehalt = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, validators=[MinValueValidator(0)])
 
     def get_gehalt(self):
         if self.typ == self.TYP_ARBEIT:
-            return (self.stdlohn or 0) * (self.stdzahl or 0)
-        return self.gehalt or 0
+            # Monatsgehalt aus Stunden pro Woche × Stundensatz × 4,33 Wochen/Monat
+            return (self.stdlohn or Decimal('0')) * (self.stdzahl or Decimal('0')) * Decimal('4.33')
+        return self.gehalt or Decimal('0')
 
     def __str__(self):
         if self.typ == self.TYP_ARBEIT:
-            return f"Arbeit - {self.stdlohn or 0}€ x {self.stdzahl or 0}h"
-        return f"Fix - {self.gehalt or 0}€"
+            monats = (self.stdlohn or 0) * (self.stdzahl or 0) * 4.33
+            return f"Arbeit - {self.stdlohn or 0}€/h × {self.stdzahl or 0}h/Woche = {monats:.2f}€/Monat"
+        return f"Fix - {self.gehalt or 0}€/Monat"   
 
 class Mitarbeiter(models.Model):
     vorname = models.CharField(max_length=30)

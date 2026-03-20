@@ -90,7 +90,7 @@ class Staff_form(forms.ModelForm):
         
         if gehalt_typ == Gehaltsmodell.TYP_ARBEIT:
             if not cleaned_data.get('stdlohn') or not cleaned_data.get('stdzahl'):
-                raise forms.ValidationError('Bitte € pro Stunde und Stunden pro Woche eingeben.')
+                raise forms.ValidationError('Bitte € pro Stunde und Stunden pro Monat eingeben.')
         elif gehalt_typ == Gehaltsmodell.TYP_FIX:
             if not cleaned_data.get('fixgehalt'):
                 raise forms.ValidationError('Bitte Fixgehalt eingeben.')
